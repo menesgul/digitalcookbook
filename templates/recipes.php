@@ -1,0 +1,360 @@
+<?php
+session_start();
+if (!isset($_SESSION['role'])) {
+    header('Location: login.html'); // Kullanıcı giriş yapmadıysa login sayfasına yönlendirilir
+    exit();
+}
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TasteBook - Recipes</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="../assets/css/footer.css">
+    <link rel="stylesheet" href="../assets/css/header.css">
+    <link rel="stylesheet" href="../assets/css/recipes.css">
+    <link rel="stylesheet" href="../assets/css/home.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Petit+Formal+Script">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto">
+
+</head>
+<body>
+    <nav class="navbar">
+    <a href="home.php" style="text-decoration: none; color: inherit;">
+    <div class="logo">TasteBook</div></a>
+        <div class="menu">
+            <a href="home.php">Home</a>
+            <a href="recipes.php">Recipes</a>
+            <a href="categories.html">Categories</a>
+            <a href="contact.html">Contact Us</a>
+            <a href="../server/logout.php">Logout</a>
+
+        </div>
+    </nav>
+
+    <main>
+        <section class="recipes-header">
+            <h1>Our Recipe Collection</h1>
+            <div class="alphabet-filter" id="alphabetFilter">
+                <!-- Alphabet buttons will be added here -->
+            </div>
+            <div class="filter-container">
+                <button class="filter-btn active" onclick="filterRecipes('all')">All</button>
+                <button class="filter-btn" onclick="filterRecipes('vegetarian')">Vegetarian</button>
+                <button class="filter-btn" onclick="filterRecipes('non-vegetarian')">Non-Vegetarian</button>
+            </div>
+            <div class="recipe-count" id="recipeCount"></div>
+        </section>
+
+        <section class="recipe-grid" id="recipeGrid">
+            <div class="loading-spinner"></div>
+        </section>
+    </main>
+
+    <!-- Modal to show recipe details -->
+    <div id="recipeModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle"></h2>
+                <button class="modal-close" onclick="closeModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <img id="modalImage" alt="Recipe Image">
+                <h3>Ingredients</h3>
+                <ul id="modalIngredients" style="list-style-type: none; padding-left: 10px; margin: 10px 0;"></ul>                <h3>Instructions</h3>
+                <p id="modalInstructions"></p>
+                <a id="modalVideo" href="#" target="_blank">Watch Recipe Video</a>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <p class="footer-text">TasteBook &copy; All rights reserved</p>
+            <p class="footer-address">Beşyol, İnönü Cd. No:38, 34295 Küçükçekmece/İstanbul</p>
+        </div>
+    </footer>
+
+    <script>
+      async function fetchAllRecipes() {
+    const recipeGrid = document.getElementById('recipeGrid');
+    recipeGrid.innerHTML = '<div class="loading-spinner"></div>';
+
+    try {
+        // API'den tüm tarifleri çek
+        const apiResponse = await fetch('https://www.themealdb.com/api/json/v1/1/search.php?f=a');
+        const apiData = await apiResponse.json();
+        const apiRecipes = apiData.meals || [];
+
+        // Veritabanından tüm tarifleri çek
+        const dbResponse = await fetch('../views/fetch_recipes.php');
+        const dbData = await dbResponse.json();
+        const dbRecipes = dbData.error ? [] : dbData;
+
+        // Tarifleri birleştir
+        const allRecipes = [...apiRecipes, ...dbRecipes];
+
+        recipeGrid.innerHTML = '';
+
+        // Tüm tarifleri ekrana yazdır
+        allRecipes.forEach(meal => {
+            const recipeCard = document.createElement('div');
+            recipeCard.className = 'recipe-card';
+            recipeCard.setAttribute('onclick', `openRecipeModal('${meal.idMeal}')`); // Make the card clickable
+            recipeCard.dataset.category = meal.strCategory ? meal.strCategory.toLowerCase() : 'unknown';
+            recipeCard.innerHTML = `
+                <img src="${meal.strMealThumb || '../assets/images/default-recipe.jpg'}" alt="${meal.strMeal}">
+                <h3>${meal.strMeal}</h3>
+                <p class="ingredients">${getMainIngredients(meal)}</p>
+                <span class="cuisine-tag">${meal.strArea || 'Unknown'}</span>
+            `;
+            recipeGrid.appendChild(recipeCard);
+        });
+    } catch (error) {
+        console.error('Error fetching recipes:', error);
+        recipeGrid.innerHTML = '<p class="no-results">Error loading recipes. Please try again later.</p>';
+    }
+}
+
+    // Function to get main ingredients
+    function getMainIngredients(meal) {
+        const ingredients = [];
+        for (let i = 1; i <= 4; i++) {
+            if (meal[`strIngredient${i}`]) {
+                ingredients.push(meal[`strIngredient${i}`]);
+            }
+        }
+        return ingredients.join(', ');
+    }
+    function openRecipeModal(mealId) {
+    // Veritabanındaki tarifleri kontrol et
+    fetch('../views/fetch_recipes.php')
+        .then(response => response.json())
+        .then(dbData => {
+            const dbMeal = dbData.find(m => m.idMeal === mealId);
+
+            if (dbMeal) {
+                // Veritabanından gelen tarif için modal doldur
+                fillModalDetails(dbMeal);
+                return;
+            }
+
+            // API'den tarif kontrolü
+            fetch(`https://www.themealdb.com/api/json/v1/1/lookup.php?i=${mealId}`)
+                .then(response => response.json())
+                .then(apiData => {
+                    const apiMeal = apiData.meals[0];
+                    fillModalDetails(apiMeal);
+                })
+                .catch(error => console.error('Error fetching recipe details from API:', error));
+        })
+        .catch(error => console.error('Error fetching local recipes:', error));
+}
+
+// Modal detaylarını doldur
+function fillModalDetails(meal) {
+    document.getElementById('modalTitle').textContent = meal.strMeal;
+    document.getElementById('modalInstructions').textContent = meal.strInstructions;
+    document.getElementById('modalImage').src = meal.strMealThumb;
+
+
+    const ingredientsList = document.getElementById('modalIngredients');
+    ingredientsList.innerHTML = '';
+    for (let i = 1; i <= 20; i++) {
+        if (meal[`strIngredient${i}`]) {
+            const li = document.createElement('li');
+            li.textContent = `${meal[`strIngredient${i}`]} - ${meal[`strMeasure${i}`]}`;
+            ingredientsList.appendChild(li);
+        }
+    }
+
+    const videoLink = document.getElementById('modalVideo');
+    videoLink.href = meal.strYoutube || '#';
+
+    document.getElementById('recipeModal').style.display = 'flex';
+}
+function createAlphabetFilter() {
+    const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    const filterContainer = document.getElementById('alphabetFilter');
+    
+    alphabet.split('').forEach(letter => {
+        const button = document.createElement('button');
+        button.className = 'letter-btn';
+        button.textContent = letter;
+        button.onclick = () => fetchRecipesByLetter(letter.toLowerCase());
+        filterContainer.appendChild(button);
+    });
+}
+
+        // Function to get main ingredients
+        function getMainIngredients(meal) {
+            const ingredients = [];
+            for (let i = 1; i <= 4; i++) {
+                if (meal[`strIngredient${i}`]) {
+                    ingredients.push(meal[`strIngredient${i}`]);
+                }
+            }
+            return ingredients.join(', ');
+        }
+
+        // Function to fetch recipes by letter
+   async function fetchRecipesByLetter(letter) {
+    const recipeGrid = document.getElementById('recipeGrid');
+    const letterButtons = document.querySelectorAll('.letter-btn');
+
+    // Aktif harf butonunu güncelle
+    letterButtons.forEach(btn => {
+        btn.classList.toggle('active', btn.textContent.toLowerCase() === letter);
+    });
+
+    // Tarifleri temizleyin ve yükleme göstergesi ekleyin
+    recipeGrid.innerHTML = '<div class="loading-spinner"></div>';
+
+    try {
+        // API'den belirli harfe göre tarifleri çek
+        const apiResponse = await fetch(`https://www.themealdb.com/api/json/v1/1/search.php?f=${letter}`);
+        const apiData = await apiResponse.json();
+        const apiRecipes = apiData.meals || [];
+
+        // Veritabanından belirli harfe göre tarifleri çek
+        const dbResponse = await fetch(`../views/fetch_recipes.php?letter=${letter}`);
+        const dbData = await dbResponse.json();
+        const dbRecipes = dbData.error ? [] : dbData;
+
+        // Tarifleri birleştir
+        const allRecipes = [...apiRecipes, ...dbRecipes];
+
+        recipeGrid.innerHTML = '';
+
+        if (allRecipes.length > 0) {
+            allRecipes.forEach(meal => {
+                const recipeCard = document.createElement('div');
+                recipeCard.className = 'recipe-card';
+                recipeCard.setAttribute('onclick', `openRecipeModal('${meal.idMeal}')`); // Make the card clickable
+                recipeCard.dataset.category = meal.strCategory ? meal.strCategory.toLowerCase() : 'unknown';
+                recipeCard.innerHTML = `
+                    <img src="${meal.strMealThumb || '../assets/images/default-recipe.jpg'}" alt="${meal.strMeal}">
+                    <h3>${meal.strMeal}</h3>
+                    <p class="ingredients">${getMainIngredients(meal)}</p>
+                    <span class="cuisine-tag">${meal.strArea || 'Unknown'}</span>
+                `;
+                recipeGrid.appendChild(recipeCard);
+            });
+        } else {
+            recipeGrid.innerHTML = '<p class="no-results">No recipes found for this letter.</p>';
+        }
+    } catch (error) {
+        console.error('Error fetching recipes:', error);
+        recipeGrid.innerHTML = '<p class="no-results">Error loading recipes. Please try again later.</p>';
+    }
+}
+
+
+        // Function to filter recipes
+        function filterRecipes(filter) {
+            const cards = document.querySelectorAll('.recipe-card');
+            const buttons = document.querySelectorAll('.filter-btn');
+            let visibleCount = 0;
+
+            // Update active button
+            buttons.forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.textContent.toLowerCase().includes(filter)) {
+                    btn.classList.add('active');
+                }
+            });
+
+            cards.forEach(card => {
+                const category = card.dataset.category;
+                let shouldShow = false;
+
+                if (filter === 'all') {
+                    shouldShow = true;
+                } else if (filter === 'vegetarian' && category === 'vegetarian') {
+                    shouldShow = true;
+                } else if (filter === 'non-vegetarian' && category !== 'vegetarian') {
+                    shouldShow = true;
+                }
+
+                card.style.display = shouldShow ? 'block' : 'none';
+                if (shouldShow) visibleCount++;
+            });
+
+            // Update recipe count
+            document.getElementById('recipeCount').textContent = `Showing ${visibleCount} recipes`;
+        }
+
+        // Function to open recipe modal
+        function openRecipeModal(mealId) {
+    // Veritabanındaki tarifleri kontrol et
+    fetch('../views/fetch_recipes.php')
+        .then(response => response.json())
+        .then(dbData => {
+            const dbMeal = dbData.find(m => m.idMeal === mealId);
+
+            if (dbMeal) {
+                // Veritabanından gelen tarif için modal doldur
+                fillModalDetails(dbMeal);
+                return;
+            }
+
+            // API'den tarif kontrolü
+            fetch(`https://www.themealdb.com/api/json/v1/1/lookup.php?i=${mealId}`)
+                .then(response => response.json())
+                .then(apiData => {
+                    const apiMeal = apiData.meals[0];
+                    fillModalDetails(apiMeal);
+                })
+                .catch(error => console.error('Error fetching recipe details from API:', error));
+        })
+        .catch(error => console.error('Error fetching local recipes:', error));
+}
+
+// Modal detaylarını doldurma fonksiyonu
+function fillModalDetails(meal) {
+    document.getElementById('modalTitle').textContent = meal.strMeal;
+    document.getElementById('modalImage').src = meal.strMealThumb;
+    document.getElementById('modalInstructions').textContent = meal.strInstructions;
+
+    const ingredientsList = document.getElementById('modalIngredients');
+    ingredientsList.innerHTML = '';
+    for (let i = 1; i <= 20; i++) {
+        if (meal[`strIngredient${i}`]) {
+            const li = document.createElement('li');
+            li.textContent = `${meal[`strIngredient${i}`]} - ${meal[`strMeasure${i}`]}`;
+            ingredientsList.appendChild(li);
+        }
+    }
+
+    const videoLink = document.getElementById('modalVideo');
+    videoLink.href = meal.strYoutube || '#';
+
+    document.getElementById('recipeModal').style.display = 'flex';
+}
+
+
+        // Function to close modal
+        function closeModal() {
+            document.getElementById('recipeModal').style.display = 'none';
+        }
+
+        // Close modal when clicking outside
+        window.onclick = (event) => {
+            const modal = document.getElementById('recipeModal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        }
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', () => {
+    createAlphabetFilter();
+    fetchAllRecipes(); // Sayfa yüklendiğinde tüm tarifleri getir
+});
+
+    </script>
+</body>
+</html>

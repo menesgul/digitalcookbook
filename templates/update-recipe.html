@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TasteBook - Update Recipe</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="../assets/css/header.css">
+    <link rel="stylesheet" href="../assets/css/footer.css">
+    <link rel="stylesheet" href="../assets/css/admin.css">
+    <link rel="stylesheet" href="../assets/css/update.css">
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <a href="/admin_home.php" style="text-decoration: none; color: inherit;">
+            <div class="logo">TasteBook Admin</div>
+        </a>          
+        <div class="menu">
+            <a href="admin_home.php"> Home</a>
+            <a href="create.php">Create New Recipe</a>
+            <a href="manage.html">Manage Existing Recipes</a>
+        </div>
+    </nav>
+
+    <main>
+        <form class="update-recipe-form" id="updateForm">
+            <div class="form-header">
+                <h1>Update Recipe</h1>
+            </div>
+
+            <!-- Hidden field to store idMeal -->
+            <input type="hidden" id="idMeal" name="idMeal" value="">
+
+            <div class="form-group">
+                <label for="mealName">Recipe Name*</label>
+                <input type="text" id="mealName" class="form-control" required>
+            </div>
+
+            <div class="form-group">
+                <label for="category">Category*</label>
+                <select id="category" class="form-control" required>
+                    <option value="">Select a category</option>
+                    <option value="Beef">Beef</option>
+                    <option value="Chicken">Chicken</option>
+                    <option value="Dessert">Dessert</option>
+                    <option value="Lamb">Lamb</option>
+                    <option value="Pasta">Pasta</option>
+                    <option value="Seafood">Seafood</option>
+                    <option value="Side">Side</option>
+                    <option value="Starter">Starter</option>
+                    <option value="Vegetarian">Vegetarian</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="area">Cuisine Area*</label>
+                <select id="area" class="form-control" required>
+                    <option value="">Select a cuisine</option>
+                    <option value="American">American</option>
+                    <option value="British">British</option>
+                    <option value="Chinese">Chinese</option>
+                    <option value="French">French</option>
+                    <option value="Indian">Indian</option>
+                    <option value="Italian">Italian</option>
+                    <option value="Japanese">Japanese</option>
+                    <option value="Mediterranean">Mediterranean</option>
+                    <option value="Mexican">Mexican</option>
+                    <option value="Thai">Thai</option>
+                    <option value="Turkish">Turkish</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="image">Recipe Image*</label>
+                <input type="file" id="image" name="strImage" class="form-control" accept="image/*">
+                <img id="imagePreview" class="preview-image" alt="Recipe preview">
+            </div>
+
+            <div class="form-group">
+                <label for="instructions">Instructions*</label>
+                <textarea id="instructions" name="strInstructions" class="form-control" placeholder="Write instructions here..." required></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="youtube">YouTube Tutorial Link (optional)</label>
+                <input type="url" id="youtube" name="strYoutube" class="form-control" placeholder="https://www.youtube.com/watch?v=...">
+            </div>
+
+            <div class="ingredients-container">
+                <label>Ingredients and Measurements*</label>
+                <div id="ingredientsList"></div>
+                <button type="button" class="add-ingredient" onclick="addIngredient()">
+                    <i class="fas fa-plus"></i> Add Ingredient
+                </button>
+            </div>
+            
+            <div class="button-group">
+                <button type="submit" class="update-btn">Update Recipe</button>
+            </div>
+        </form>
+    </main>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const recipeId = urlParams.get('id');
+
+        if (!recipeId) {
+            console.error('No ID provided in the URL');
+            alert('No recipe ID provided. Please ensure the URL contains a valid recipe ID.');
+            window.location.href = '../templates/manage.html';
+        }
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                const response = await fetch(`../views/fetch_recipes.php?id=${recipeId}`);
+                const data = await response.json();
+
+                if (data.error) {
+                    console.error(data.error);
+                    alert(data.error);
+                    return;
+                }
+
+                // Assign recipeId to hidden input
+                document.getElementById('idMeal').value = recipeId;
+
+                // Fill form fields
+                document.getElementById('mealName').value = data.strMeal || '';
+                document.getElementById('category').value = data.strCategory || '';
+                document.getElementById('area').value = data.strArea || '';
+                document.getElementById('instructions').value = data.strInstructions || '';
+                document.getElementById('youtube').value = data.strYoutube || '';
+
+                // Populate ingredients
+                const ingredientsList = document.getElementById('ingredientsList');
+                ingredientsList.innerHTML = ''; // Clear list
+                for (let i = 1; i <= 20; i++) {
+                    if (data[`strIngredient${i}`] && data[`strMeasure${i}`]) {
+                        const row = document.createElement('div');
+                        row.className = 'ingredient-row';
+                        row.innerHTML = `
+                            <input type="text" value="${data[`strIngredient${i}`]}" class="form-control" placeholder="Ingredient" required>
+                            <input type="text" value="${data[`strMeasure${i}`]}" class="form-control" placeholder="Measurement" required>
+                            <button type="button" class="remove-ingredient" onclick="removeIngredient(this)">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        `;
+                        ingredientsList.appendChild(row);
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading recipe data:', error);
+                alert('Error loading recipe data');
+            }
+        });
+
+        // Add ingredient row
+        function addIngredient() {
+            const ingredientsList = document.getElementById('ingredientsList');
+            const row = document.createElement('div');
+            row.className = 'ingredient-row';
+            row.innerHTML = `
+                <input type="text" class="form-control" placeholder="Ingredient" required>
+                <input type="text" class="form-control" placeholder="Measurement" required>
+                <button type="button" class="remove-ingredient" onclick="removeIngredient(this)">
+                    <i class="fas fa-trash"></i>
+                </button>
+            `;
+            ingredientsList.appendChild(row);
+        }
+
+        // Remove ingredient row
+        function removeIngredient(button) {
+            button.parentElement.remove();
+        }
+
+        // Form submission
+        document.getElementById('updateForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            document.getElementById('updateForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const formData = new FormData();
+    
+    // Ana bilgileri ekle
+    formData.append('idMeal', document.getElementById('idMeal').value);
+    formData.append('mealName', document.getElementById('mealName').value);
+    formData.append('category', document.getElementById('category').value);
+    formData.append('area', document.getElementById('area').value);
+    formData.append('instructions', document.getElementById('instructions').value);
+    formData.append('youtube', document.getElementById('youtube').value);
+
+    // Resim dosyasını ekle
+    const imageInput = document.getElementById('image');
+    if (imageInput.files.length > 0) {
+        formData.append('image', imageInput.files[0]);
+    }
+
+    // Malzemeleri ekle
+    const ingredientRows = document.querySelectorAll('.ingredient-row');
+    ingredientRows.forEach((row, index) => {
+        const inputs = row.querySelectorAll('input');
+        formData.append(`ingredients[${index}]`, inputs[0].value);
+        formData.append(`measurements[${index}]`, inputs[1].value);
+    });
+
+    try {
+        const response = await fetch('../views/update_recipe.php', {
+            method: 'POST',
+            body: formData
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            alert('Recipe updated successfully!');
+            window.location.href = 'manage.html';
+        } else {
+            alert('Error updating recipe: ' + (result.message || result.error));
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('An error occurred while updating the recipe');
+    }
+});
+        });
+    </script>
+</body>
+</html>

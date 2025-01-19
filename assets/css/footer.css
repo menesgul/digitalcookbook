@@ -1,0 +1,24 @@
+.footer {
+    background-color: #628E90;
+    color: #000000;
+    text-align: center;
+    padding: 1em 0;
+    font-family: Arial, sans-serif;
+}
+
+.footer-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1em;
+}
+
+.footer-text {
+    margin: 0.5em 0;
+    font-size: 1em;
+    font-weight: bold;
+}
+
+.footer-address {
+    margin: 0.5em 0;
+    font-size: 0.9em;
+}

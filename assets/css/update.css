@@ -1,0 +1,146 @@
+.update-recipe-form {
+    max-width: 800px;
+    margin: 40px auto;
+    padding: 20px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.form-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.form-header h1 {
+    font-family: "Petit Formal Script", serif;
+    font-size: 2.5rem;
+    background: linear-gradient(45deg, #628E90, #304648);
+    -webkit-background-clip: text;
+    color: transparent;
+    margin-bottom: 10px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: #4b5563;
+    font-weight: 500;
+}
+
+.form-control {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-family: "Roboto", sans-serif;
+}
+
+.ingredients-container {
+    margin-bottom: 20px;
+}
+
+.ingredient-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.remove-ingredient {
+    background: #ef4444;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 10px;
+    cursor: pointer;
+}
+
+.add-ingredient {
+    background: #10b981;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 10px 20px;
+    cursor: pointer;
+    margin-bottom: 20px;
+}
+
+textarea.form-control {
+    min-height: 150px;
+    resize: vertical;
+}
+
+.button-group {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.update-btn, .cancel-btn {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1rem;
+    flex: 1;
+    transition: background-color 0.3s;
+}
+
+.update-btn {
+    background-color: #22c55e;
+    color: white;
+}
+
+.update-btn:hover {
+    background-color: #16a34a;
+}
+
+.cancel-btn {
+    background-color: #6b7280;
+    color: white;
+}
+
+.cancel-btn:hover {
+    background-color: #4b5563;
+}
+
+.preview-image {
+    max-width: 300px;
+    margin: 10px 0;
+    border-radius: 6px;
+    display: none;
+}
+
+.image-note {
+    color: #6b7280;
+    font-size: 0.9rem;
+    margin-top: 5px;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .update-recipe-form {
+        margin: 20px;
+    }
+
+    .form-header h1 {
+        font-size: 2rem;
+    }
+
+    .ingredient-row {
+        flex-direction: column;
+    }
+
+    .button-group {
+        flex-direction: column;
+    }
+
+    .preview-image {
+        max-width: 100%;
+    }
+}

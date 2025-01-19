@@ -1,0 +1,53 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="../assets/css/login.css">
+  <link rel="stylesheet" href="../assets/css/footer.css">
+  <link rel="stylesheet" href="../assets/css/header.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Petit+Formal+Script">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto">
+    
+</head>
+
+<body>
+    <!-- Header Navigation Section -->
+    <header>
+        <nav class="navbar">
+            <a href="login.html" style="text-decoration: none; color: inherit;">
+                <div class="logo">TasteBook</div></a>
+            <div class="menu">
+                <a href="login.html">Log In</a>
+                <a href="signup.html">Sign Up</a>
+            </div>
+        </nav>
+    </header>
+ <!-- Login Form Section -->
+ <div class="login-container">
+    <div class="login-box">
+        <h1 class="login-title">Log In</h1>
+        <form class="login-form" action="../server/login.php" method="POST">
+            <div class="input-group">
+                <input type="email" name="email" id="email"  class="login-input" placeholder="Email" required>
+            </div>
+            <div class="input-group">
+                <input type="password" name="password" id="password" class="login-input" placeholder="Password" required>
+            </div>
+            <button type="submit" name="login" class="login-button">Login</button>
+        </form>
+        <p class="signup-prompt">Don't have an account? <a href="signup.html" class="signup-link">Sign up.</a></p>
+    </div>
+</div>
+    
+
+   
+<footer class="footer">
+    <div class="footer-content">
+        <p class="footer-text">TasteBook &copy; All rights reserved</p>
+        <p class="footer-address">Beşyol, İnönü Cd. No:38, 34295 Küçükçekmece/İstanbul</p>
+    </div>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,195 @@
+body {
+    font-family: "Roboto", sans-serif;
+    background-image: linear-gradient(rgb(214, 234, 242), rgb(255, 230, 194));
+    margin: 0;
+    padding: 0;
+    color: #333;
+}
+
+
+main {
+    padding: 20px;
+}
+
+.create-recipe-form {
+    max-width: 700px;
+    margin: 40px auto;
+    padding: 30px;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+}
+
+.create-recipe-form h1 {
+    font-family: "Petit Formal Script", serif;
+    font-size: 2.5rem;
+    text-align: center;
+    color: #304648;
+    margin-bottom: 20px;
+}
+
+.create-recipe-form label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+    color: #555;
+}
+
+.create-recipe-form input[type="text"],
+.create-recipe-form input[type="url"],
+.create-recipe-form input[type="file"],
+.create-recipe-form select,
+.create-recipe-form textarea {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 1rem;
+}
+
+.ingredients-container {
+    margin-bottom: 20px;
+}
+
+.ingredient-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.ingredient-row input {
+    flex: 1;
+}
+
+button.add-ingredient,
+button.submit-btn {
+    background-color: #628e90;
+    color: #fff;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.3s;
+}
+
+button.add-ingredient:hover,
+button.submit-btn:hover {
+    background-color: #0f9b76;
+}
+
+button.remove-ingredient {
+    background-color: #ef4444;
+    color: #fff;
+    padding: 10px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.3s;
+}
+
+button.remove-ingredient:hover {
+    background-color: #dc2626;
+}
+
+textarea {
+    resize: vertical;
+}
+
+.preview-image {
+    max-width: 100%;
+    height: auto;
+    margin: 10px 0;
+    border-radius: 6px;
+    display: none;
+}
+.create-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background: linear-gradient(to bottom, #f7f7f7, #e2e8f0);
+    padding: 20px;
+}
+
+.create-box {
+    width: 100%;
+    max-width: 700px;
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.create-title {
+    text-align: center;
+    font-family: "Petit Formal Script", serif;
+    font-size: 2.5rem;
+    color: #304648;
+    margin-bottom: 20px;
+}
+
+.input-group {
+    margin-bottom: 20px;
+}
+
+.input-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+    color: #555;
+}
+
+.input-group input,
+.input-group select,
+.input-group textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 1rem;
+}
+
+.submit-btn {
+    background-color: #10b981;
+    color: white;
+    padding: 12px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    width: 100%;
+    font-size: 1rem;
+    transition: background-color 0.3s;
+}
+
+.submit-btn:hover {
+    background-color: #0f9b76;
+}
+
+
+.popup {
+    display: none;
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 15px 25px;
+    background-color: #28a745;
+    color: white;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    animation: slideIn 0.5s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}

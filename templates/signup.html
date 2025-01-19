@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up</title>
+    <link rel="stylesheet" href="../assets/css/header.css">
+    <link rel="stylesheet" href="../assets/css/footer.css">
+    <link rel="stylesheet" href="../assets/css/login.css">
+    <link rel="stylesheet" href="../assets/css/signup.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Petit+Formal+Script">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto">
+</head>
+<body>
+    <!-- Header Navigation Section -->
+    <header>
+        <nav class="navbar">
+            <a href="signup.html" style="text-decoration: none; color: inherit;">
+                <div class="logo">TasteBook</div></a>
+            <div class="menu">
+                <a href="login.html">Log In</a>
+                <a href="signup.html">Sign Up</a>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Sign Up Section -->
+    <div class="signup-container">
+        <div class="signup-box">
+            <h1 class="signup-title">Sign Up</h1>
+            <form id="signupForm" action="../server/register.php" method="POST">
+                <input type="text" id="username" name="username" placeholder="Username" class="signup-input" required minlength="3">
+                <small id="usernameError" class="error-message"></small>
+                
+                <input type="email" id="email" name="email" placeholder="Email" class="signup-input" required>
+                <small id="emailError" class="error-message"></small>
+                
+                <input type="password" id="password" name="password" placeholder="Password" class="signup-input" required minlength="6">
+                <small id="passwordError" class="error-message"></small>
+                
+                <button type="submit" class="signup-button">Sign Up</button>
+            </form>
+            
+            <div class="login-prompt">
+                Already have an account? <a href="login.html" class="signup-link">Log In</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <p class="footer-text">TasteBook &copy; All rights reserved</p>
+            <p class="footer-address">Beşyol, İnönü Cd. No:38, 34295 Küçükçekmece/İstanbul</p>
+        </div>
+    </footer>
+    
+    <script src="../assets/js/signup.js"></script>
+</body>
+</html>
